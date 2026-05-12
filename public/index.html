@@ -25,7 +25,12 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""
         ></script>
+
+        <script src="/socket.io/socket.io.js"></script>
+
         <script>
+            const socket = io();
+
             const map = L.map("map");
 
             L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -61,6 +66,11 @@
                 setInterval(async () => {
                     const { latitude, longitude } =
                         await getUserCurrentLocation();
+
+                    socket.emit("client:location:update", {
+                        latitude,
+                        longitude,
+                    });
 
                     if (!myCurrentLocationMarker) {
                         myCurrentLocationMarker = L.marker([
