@@ -33,6 +33,29 @@
 
             const map = L.map("map");
 
+            const remoteMarkers = new Map();
+
+            socket.on("server:location:update", (data) => {
+                const { id, latitude, longitude } = data;
+
+                if (!remoteMarkers.has(id)) {
+                    const marker = L.marker([latitude, longitude])
+                        .addTo(map)
+                        .bindPopup(id);
+                    remoteMarkers.set(id, marker);
+                } else {
+                    const existingMarker = remoteMarkers.get(id);
+                    existingMarker.setLatLng([latitude, longitude]);
+                }
+
+                console.log(
+                    "Location updated for user",
+                    id,
+                    latitude,
+                    longitude,
+                );
+            });
+
             L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                 maxZoom: 19,
                 attribution:
