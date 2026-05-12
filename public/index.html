@@ -39,10 +39,10 @@
                     if ("geolocation" in navigator) {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
-                                const lattitude = position.coords.latitude;
+                                const latitude = position.coords.latitude;
                                 const longitude = position.coords.longitude;
 
-                                resolve({ lattitude, longitude });
+                                resolve({ latitude, longitude });
                             },
                             (error) => {
                                 reject(error);
@@ -55,9 +55,30 @@
                 });
             }
 
-            getUserCurrentLocation().then((position) => {
-                map.setView([position.lattitude, position.longitude], 13);
-            });
+            let myCurrentLocationMarker = null;
+
+            async function main() {
+                setInterval(async () => {
+                    const { latitude, longitude } =
+                        await getUserCurrentLocation();
+
+                    if (!myCurrentLocationMarker) {
+                        myCurrentLocationMarker = L.marker([
+                            latitude,
+                            longitude,
+                        ])
+                            .addTo(map)
+                            .bindPopup("You are here!");
+                        map.setView([latitude, longitude], 13);
+                    } else {
+                        myCurrentLocationMarker.setLatLng([
+                            latitude,
+                            longitude,
+                        ]);
+                    }
+                }, 10 * 1000);
+            }
+            main();
         </script>
     </body>
 </html>
